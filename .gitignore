@@ -1,14 +1,5 @@
-# Backend
-CoreBackend/node_modules/
-CoreBackend/dist/
-CoreBackend/prisma/dev.db
-CoreBackend/logs/
-CoreBackend/.env
-
-# Frontend
-CoreFrontend/react-ts/node_modules/
-CoreFrontend/react-ts/dist/
-
-# General
-.env
+node_modules/
+dist/
 *.db
+.env
+logs/
