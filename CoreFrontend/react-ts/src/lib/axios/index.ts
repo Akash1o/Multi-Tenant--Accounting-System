@@ -2,10 +2,8 @@ import axios from "axios";
 import { useAuthStore } from "../../store/authStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: { "Content-Type": "application/json" },
 });
 
 // request interceptor - add token to every request
