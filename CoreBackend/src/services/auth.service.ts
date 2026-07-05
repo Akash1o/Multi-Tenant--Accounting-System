@@ -3,48 +3,46 @@ import { generateOtp } from "../utils/otp";
 import throwError from "../utils/AppError";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env";
-import { generateToken } from "../utils/jwt";
-
+// import { generateToken } from "../utils/jwt";
+import { sendSMS } from "../utils/sms";
 
 export class AuthService {
 
-  static async requestOtp(phoneNumber: string)
-    : Promise<{ isNew: boolean; otp: string }> {
+//   
 
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-    const recentOtpCount = await prisma.otp.count({
-      where: { phoneNumber, createdAt: { gte: fiveMinutesAgo } }
-    });
+static async requestOtp(phoneNumber: string)
+  : Promise<{ isNew: boolean }> {
 
-    const hourlyOtpCount = await prisma.otp.count({
-      where: { phoneNumber, createdAt: { gte: oneHourAgo } }
-    });
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-    if (recentOtpCount > 4 || hourlyOtpCount > 15) {
-      throwError(400, "Too many OTPs sent. Try again later.");
-    }
+  const recentOtpCount = await prisma.otp.count({
+    where: { phoneNumber, createdAt: { gte: fiveMinutesAgo } }
+  });
 
-    const user = await prisma.user.findUnique({
-      where: { phoneNumber }
-    });
+  const hourlyOtpCount = await prisma.otp.count({
+    where: { phoneNumber, createdAt: { gte: oneHourAgo } }
+  });
 
-    // NOTE: no isNew/registered guard here on purpose. The login form is a
-    // single phone-number entry point for both new and returning users --
-    // the frontend has no way to know in advance which one this number is.
-    // We just tell it via `isNew` and let it proceed either way.
-
-    const otp = generateOtp();
-
-    await prisma.otp.create({
-      data: { phoneNumber, code: otp }
-    });
-
-    return { otp, isNew: !user };
+  if (recentOtpCount > 4 || hourlyOtpCount > 15) {
+    throwError(400, "Too many OTPs sent. Try again later.");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { phoneNumber }
+  });
 
+  const otp = generateOtp();
+
+  await sendSMS(phoneNumber, `Your OTP is ${otp}. Valid for 5 minutes.`);
+
+  await prisma.otp.create({
+    data: { phoneNumber, code: otp }
+  });
+
+  return { isNew: !user };
+}
 
   static async verifyOtp(phoneNumber: string, otp: string)
     : Promise<{
