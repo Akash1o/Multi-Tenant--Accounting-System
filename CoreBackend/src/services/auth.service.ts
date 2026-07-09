@@ -3,8 +3,7 @@ import { generateOtp } from "../utils/otp";
 import throwError from "../utils/AppError";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env";
-// import { generateToken } from "../utils/jwt";
-import { sendSMS } from "../utils/sms";
+import { generateToken } from "../utils/jwt";
 
 export class AuthService {
 
@@ -12,7 +11,7 @@ export class AuthService {
 
 
 static async requestOtp(phoneNumber: string)
-  : Promise<{ isNew: boolean }> {
+  : Promise<{ isNew: boolean; otp: string }> {  // ← fix here
 
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
@@ -35,13 +34,11 @@ static async requestOtp(phoneNumber: string)
 
   const otp = generateOtp();
 
-  await sendSMS(phoneNumber, `Your OTP is ${otp}. Valid for 5 minutes.`);
-
   await prisma.otp.create({
     data: { phoneNumber, code: otp }
   });
 
-  return { isNew: !user };
+  return { otp, isNew: !user };  
 }
 
   static async verifyOtp(phoneNumber: string, otp: string)
