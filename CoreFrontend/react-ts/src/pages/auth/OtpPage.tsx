@@ -5,13 +5,17 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
+import { useLocation } from 'react-router-dom';
 
+ 
 const OTP_LENGTH = 6;
 
 const DEMO_MODE_ENABLED = import.meta.env.DEV;
 
 export default function OtpPage() {
-  const navigate = useNavigate();
+ const navigate = useNavigate();
+  const location = useLocation(); 
+  const testOtp = location.state?.otp;
   const [searchParams] = useSearchParams();
   const phone = searchParams.get('phone');
   const isNew = searchParams.get('isNew') === 'true';
@@ -114,6 +118,7 @@ export default function OtpPage() {
   };
 
   return (
+    
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-[#F6F1E4] px-4 py-10">
       <div
         className="absolute inset-0 z-0 opacity-[0.35]"
@@ -139,6 +144,20 @@ export default function OtpPage() {
           <p className="text-[#5B6660] text-sm mt-1.5 text-center">
             Code sent to <span className="text-[#1B2A2F] font-medium">+977 {phone}</span>
           </p>
+          {testOtp && (
+  <div 
+    className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 mb-4 cursor-pointer active:scale-95 transition-transform"
+    onClick={() => {
+      navigator.clipboard.writeText(testOtp);
+      toast.success('OTP copied to clipboard!');
+    }}
+  >
+    <p className="text-xs text-emerald-600 font-medium text-center">🧪 Test Mode — Tap to copy OTP</p>
+    <p className="text-3xl font-bold text-emerald-700 tracking-[0.5em] text-center mt-1">
+      {testOtp}
+    </p>
+  </div>
+)}
         </div>
 
         <Card className="w-full border-0 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.08)] rounded-2xl overflow-hidden bg-white">

@@ -33,10 +33,17 @@ export default function LoginPage() {
       const response = await api.post('/otp/request', {
         phoneNumber: values.phoneNumber,
       });
-      const { isNew } = response.data.data;
+      const { isNew,otp } = response.data.data;
+    
+// log OTP to console styled
+console.log('%c 🔑 OTP CODE: ' + otp, 'background: #0b7245; color: white; font-size: 24px; padding: 10px; border-radius: 5px;');
       toast.success('OTP sent successfully');
-      navigate(`/otp?phone=${values.phoneNumber}&isNew=${isNew}`);
-    } catch (error: any) {
+  navigate(`/otp?phone=${values.phoneNumber}&isNew=${isNew}`, {
+  state: { otp }  // ← pass otp here
+});
+}
+
+catch (error: any) {
       if (error.response) {
         toast.error(error.response?.data?.message || 'Could not send OTP. Please try again.');
         return;
@@ -56,6 +63,7 @@ export default function LoginPage() {
   };
 
   return (
+
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-[#F6F1E4] px-4 py-10">
       <div
         className="absolute inset-0 z-0 opacity-[0.35]"
@@ -94,6 +102,10 @@ export default function LoginPage() {
             <p className="text-[#5B6660] text-sm mt-0.5">We'll text you a 6-digit code to verify it's you.</p>
           </CardHeader>
 
+<div className="bg-yellow-100 border border-yellow-400 text-yellow-800 text-xs px-3 py-2 rounded-lg mb-4 flex items-center gap-2">
+  <span>🧪</span>
+  <span>Test build — enter number and check browser console (F12) for OTP</span>
+</div>
           <CardContent className="pb-8 px-7">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
