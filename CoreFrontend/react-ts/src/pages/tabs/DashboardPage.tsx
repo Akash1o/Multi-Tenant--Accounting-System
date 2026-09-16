@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, ArrowRightLeft, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, ArrowRightLeft, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function DashboardPage() {
   const selectedOrganization = useAuthStore((state) => state.selectedOrganization);
@@ -31,73 +32,118 @@ export default function DashboardPage() {
   }, [selectedOrganization]);
 
   if (!selectedOrganization) {
-    return <div className="p-4 text-center text-muted-foreground mt-10">No organization selected.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-[#8A9490]">
+        <Wallet className="h-12 w-12 mb-4 opacity-50" />
+        <p>No organization selected.</p>
+      </div>
+    );
   }
 
-  return (
-    <div className="p-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Overview</h2>
-        <p className="text-muted-foreground">Welcome back to {selectedOrganization.name}</p>
-      </div>
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="border-primary/10 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Parties</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+  const item = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
+
+  return (
+    <motion.div 
+      variants={container} 
+      initial="hidden" 
+      animate="show" 
+      className="space-y-6 pb-8"
+    >
+      <motion.div variants={item} className="space-y-1">
+        <h2 className="text-3xl font-bold tracking-tight text-[#1B2A2F]" style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>
+          Overview
+        </h2>
+        <p className="text-[#5B6660]">Welcome back to <span className="font-semibold text-[#1B2A2F]">{selectedOrganization.name}</span></p>
+      </motion.div>
+
+      <motion.div variants={item} className="grid grid-cols-2 gap-4">
+        <Card className="border-0 shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-2xl bg-white overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-[#5B6660]">Total Parties</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">{partiesCount}</div>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-[#1B2A2F]">{partiesCount}</div>
           </CardContent>
         </Card>
         
-        <Card className="border-primary/10 shadow-sm transition-all hover:shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-            <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-0 shadow-[0_4px_20px_rgba(0,0,0,0.05)] rounded-2xl bg-white overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-[#5B6660]">Recent Activity</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-full">
+              <ArrowRightLeft className="h-4 w-4 text-primary" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">{recentTransactions.length}</div>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-[#1B2A2F]">{recentTransactions.length}</div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
-      <div className="space-y-4">
+      <motion.div variants={item} className="space-y-4 mt-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Recent Transactions</h3>
-          <Link to="/transactions" className="text-sm text-primary hover:underline font-medium">View All</Link>
+          <h3 className="text-lg font-bold text-[#1B2A2F]" style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>
+            Recent Transactions
+          </h3>
+          <Link to="/transactions" className="text-sm text-primary hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors font-medium">
+            View All
+          </Link>
         </div>
         
         <div className="space-y-3">
           {recentTransactions.length === 0 ? (
-            <Card className="border-dashed bg-muted/30">
-              <CardContent className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+            <Card className="border-dashed border-[#DFD9C6] bg-transparent shadow-none">
+              <CardContent className="flex flex-col items-center justify-center h-32 text-[#8A9490]">
                 <p>No recent transactions</p>
               </CardContent>
             </Card>
           ) : (
-            recentTransactions.map((tx: any) => (
-              <Card key={tx.id} className="overflow-hidden transition-all hover:shadow-sm">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-2 rounded-full ${tx.flow === 'IN' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
-                      {tx.flow === 'IN' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            recentTransactions.map((tx: any, i) => (
+              <motion.div 
+                key={tx.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="overflow-hidden border-0 shadow-[0_2px_10px_rgba(0,0,0,0.03)] bg-white rounded-xl hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full ${tx.flow === 'IN' ? 'bg-[#EAF3EE] text-primary' : 'bg-[#FEEAE8] text-[#B23B3B]'}`}>
+                        {tx.flow === 'IN' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#1B2A2F]">{tx.party?.name || 'Unknown Party'}</p>
+                        <p className="text-xs text-[#8A9490]">{new Date(tx.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{tx.party?.name || 'Unknown Party'}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(tx.createdAt || Date.now()).toLocaleDateString()}</p>
+                    <div className={`font-bold text-lg ${tx.flow === 'IN' ? 'text-primary' : 'text-[#B23B3B]'}`}>
+                      {tx.flow === 'IN' ? '+' : '-'}${tx.amount}
                     </div>
-                  </div>
-                  <div className={`font-bold ${tx.flow === 'IN' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {tx.flow === 'IN' ? '+' : '-'}${tx.amount}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
+
